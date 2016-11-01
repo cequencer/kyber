@@ -111,6 +111,20 @@ func (s *Schnorr) NewRound(random *SharedSecret, h hash.Hash) error {
 	return nil
 }
 
+// NewRoundWithHash takes the random shared secret for this round and the hash
+// that is must use in the signing phase. By default, `NewRound` computes
+// `H(msg || V)` as an abstract.Scalar. Here you can specify the scalar to use
+// directly. It's main use is for doing CoSi signatures using JVSS. In CoSi, the
+// hash is `H( commit || public key || msg)`. If you use this method, you must
+// then be able to implement your own verification function as it won't validate
+// if you change from the standard hash.
+func (s *Schnorr) NewRoundWithHash(random *SharedSecret, hash abstract.Scalar) error {
+	s.random = random
+	s.partials = make([]*SchnorrPartialSig, s.info.N)
+	s.hash = &hash
+	return nil
+}
+
 // Returns a hash of the message and the random secret:
 // H( m || V )
 // Returns an error if something went wrong with the marshalling
